@@ -1,1 +1,7 @@
 log.log
+dist/*
+build/*
+_pycache_/*
+legod.spec
+__pycache__/legod.cpython-37.pyc
+.gitignore

@@ -4,9 +4,9 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2021-08-28 00:08:49
-# @FilePath: \undefinedh:\资料备份\源码\Python\雷神\legod.py
-# @Description: 雷神加速器时常自动暂停
+# @LastEditTime: 2021-08-28 01:03:47
+# @FilePath: \雷神\legod.py
+# @Description: 雷神加速器时长自动暂停
 ###############
 import requests
 import json
