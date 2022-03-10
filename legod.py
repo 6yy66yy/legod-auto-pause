@@ -4,10 +4,12 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2021-08-31 01:08:53
-# @FilePath: \undefinedh:\资料备份\源码\Python\雷神\legod.py
+# @LastEditTime: 2022-03-11 01:47:25
+# @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停
 ###############
+from concurrent.futures import ThreadPoolExecutor
+from tracemalloc import stop
 import requests
 import json
 import os
@@ -80,6 +82,7 @@ def check_exsit(process_name):
     return False
 
 def pause(account_token,header):
+    global conf
     payload={
         "account_token":account_token,
         "lang":"zh_CN"}
@@ -101,56 +104,65 @@ def pause(account_token,header):
                 conf.write(open(configPath,'w'))
                 print("原token失效,已写入新的token")
                 payload['account_token']=token
-# 当前文件路径
-proDir = os.path.split(os.path.realpath(__file__))[0]
+def load():
+        # 当前文件路径
+    proDir = os.path.split(os.path.realpath(__file__))[0]
+    global appname,sec,uname,password,update,account_token,configPath,lepath,conf
+    # 在当前文件路径下查找.ini文件
+    configPath = os.path.join(proDir, "config.ini")
+    conf = configparser.ConfigParser()
+    
+    # 读取.ini文件
+    conf.read(configPath,encoding='UTF-8')
+    
+    # get()函数读取section里的参数值
+    
+    appname = conf.get('config','games')
+    sec = int(conf.get('config','looptime'))
+    uname=conf.get("config","uname")
+    password=conf.get("config","password")
+    update=int(conf.get("config","update"))
+    lepath=conf.get("config","path")
+    print('''
+            ***************************************************\n
+            *                                                 *\n
+            *                                                 *\n
+            *              雷神加速器自动暂停工具v1.0         *\n
+            *                     正在运行                     *\n
+            *                    作者：6yy66yy                 *\n
+            *                                                 *\n
+            ***************************************************\n
+            ''')
+    print("目前检测游戏列表:{}".format(appname))
+    
+    # account_token=login(uname,password)
+    account_token = conf.get("config","account_token")
+    return conf
 
-# 在当前文件路径下查找.ini文件
-configPath = os.path.join(proDir, "config.ini")
-conf = configparser.ConfigParser()
-
-# 读取.ini文件
-conf.read(configPath,encoding='UTF-8')
-
-# get()函数读取section里的参数值
-
-appname = conf.get('config','games')
-sec = int(conf.get('config','looptime'))
-uname=conf.get("config","uname")
-password=conf.get("config","password")
-update=int(conf.get("config","update"))
-
-print('''
-        ***************************************************\n
-        *                                                 *\n
-        *                                                 *\n
-        *              雷神加速器自动暂停工具v1.0         *\n
-        *                     正在运行                     *\n
-        *                    作者：6yy66yy                 *\n
-        *                                                 *\n
-        ***************************************************\n
-        ''')
-print("目前检测游戏列表:{}".format(appname))
-
-# account_token=login(uname,password)
-account_token = conf.get("config","account_token")
-
-sw=1
-while 1==1:
-    game=check_exsit(appname)
-    if(game):
-        if(sw==1):
-            print(game)
-            sw=0
-    elif(sw==0):
-        for i in range(1,sec):
-            game=check_exsit(appname)
-            time.sleep(1)
-        if game is False:
-            try:
-                pause(account_token,header)
-            except:
-                s = traceback.format_exc()
-                logging.error(s)
-        sw=1
-    time.sleep(update)
+def detection():
+    sw=1
+    while 1==1:
+        game=check_exsit(appname)
+        if(game):
+            if(sw==1):
+                print(game)
+                sw=0
+        elif(sw==0):
+            for i in range(1,sec):
+                game=check_exsit(appname)
+                time.sleep(1)
+            if game is False:
+                try:
+                    pause(account_token,header)
+                except:
+                    s = traceback.format_exc()
+                    logging.error(s)
+            sw=1
+        time.sleep(update)
+global appname,sec,uname,password,update,account_token,configPath,lepath,conf
+if __name__ == '__main__':
+    conf=load()
+    detection()
+    
+    
 
