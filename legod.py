@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-03-11 17:04:16
+# @LastEditTime: 2022-03-11 18:20:59
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停
 ###############
@@ -95,6 +95,8 @@ def pause(sflag=False):
     if(sflag):
         stopp=True
     while(i<3):
+        if(uname=="" or password==""):
+            break
         r = requests.post(url,data=payload,headers = header)
         msg=json.loads(r.text)
         if(msg['code']!=400006):
