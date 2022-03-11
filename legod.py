@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-03-11 20:09:56
+# @LastEditTime: 2022-03-11 20:35:18
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停
 ###############
@@ -96,7 +96,7 @@ def pause(sflag=False):
         stopp=True
     while(i<3):
         if(uname=="" or password=="" or not conf.get("config","account_token") == ""):
-            toaster.show_toast("没填用户名密码或者是token无效","请填写后重启工具via 自动暂停工具v1.2",icon_path=None,duration=5,threaded=True)#多线程不会引起程序关闭
+            toaster.show_toast("没填用户名密码或者是token无效","请填写后重启工具via 自动暂停工具v1.2",icon_path=r"legod.ico",duration=3,threaded=True)#多线程不会引起程序关闭，注意ico地址要这样写才不会报错
             break
         r = requests.post(url,data=payload,headers = header)
         msg=json.loads(r.text)

@@ -88,7 +88,7 @@ class TrayIcon(object):
                 os.system('start '+legod.lepath)
             else:
                 print("没填雷神路径")
-                toaster.show_toast("没填雷神路径","via 自动暂停工具v1.2",icon_path=None,duration=5,threaded=True)
+                toaster.show_toast("没填雷神路径","via 自动暂停工具v1.2",icon_path=r"legod.ico",duration=5,threaded=True)
         elif id == 1024:
             legod.pause()
             print ("暂停时长")
