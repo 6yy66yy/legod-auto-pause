@@ -5,3 +5,8 @@ _pycache_/*
 legod.spec
 __pycache__/legod.cpython-37.pyc
 .gitignore
+run.spec
+TrayIcon.spec
+__pycache__/run.cpython-37.pyc
+__pycache__/TrayIcon.cpython-37.pyc
+.ico.spec

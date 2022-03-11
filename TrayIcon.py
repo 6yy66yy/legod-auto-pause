@@ -5,7 +5,6 @@ import win32api
 from ctypes import WinError
 import os
 import legod
-import _thread
 
 class TrayIcon(object):
     def __init__(self):
@@ -61,12 +60,12 @@ class TrayIcon(object):
 
     def OnTaskbarNotify(self, hwnd, msg, wparam, lparam):
         if lparam == win32con.WM_LBUTTONUP:
-            print("You clicked me.")
-        elif lparam == win32con.WM_LBUTTONDBLCLK:
-            print("You double-clicked me - goodbye")
-            win32gui.DestroyWindow(self.hwnd)
+            print("左键单击")
+        # elif lparam == win32con.WM_LBUTTONDBLCLK:
+        #     print("You double-clicked me - goodbye")
+        #     win32gui.DestroyWindow(self.hwnd)
         elif lparam == win32con.WM_RBUTTONUP:
-            print("You right clicked me.")
+            # print("You right clicked me.")
             menu = win32gui.CreatePopupMenu()
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1023, "打开雷神加速器")
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1024, "暂停时长")
@@ -83,28 +82,22 @@ class TrayIcon(object):
     def OnCommand(self, hwnd, msg, wparam, lparam):
         id = win32api.LOWORD(wparam)
         if id == 1023:
-            print( '打开雷神加速器')
             if(legod.lepath!=""):
                 os.system('start '+legod.lepath)
             else:
                 print("没填雷神路径")
         elif id == 1024:
-            legod.pause(legod.account_token,legod.header)
+            legod.pause()
             print ("暂停时长")
         elif id == 1025:
             print("打开设置")
             os.system('start config.ini')
         elif id == 1026:
             print ("退出并暂停时长")
-            legod.pause(legod.account_token,legod.header)
+            legod.pause()
             win32gui.DestroyWindow(self.hwnd)
-            # os._exit()
         else:
             print ("Unknown command -", id)
 if __name__ == '__main__':
-    legod.load() 
     t = TrayIcon()
-
-    legod.detection()#TODO:这里需要多线程监测游戏进程
-
     win32gui.PumpMessages()

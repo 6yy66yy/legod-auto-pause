@@ -4,12 +4,11 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-03-11 01:47:25
+# @LastEditTime: 2022-03-11 17:04:16
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停
 ###############
 from concurrent.futures import ThreadPoolExecutor
-from tracemalloc import stop
 import requests
 import json
 import os
@@ -20,6 +19,8 @@ import time
 import traceback
 import logging
 import hashlib #md5 加密
+# from win10toast import ToastNotifier #TODO:未来做消息提醒，这个提醒是阻塞的，而且会关闭线程
+# toaster = ToastNotifier()
 
 logging.basicConfig(filename='log.log')
 def genearteMD5(str):
@@ -81,30 +82,35 @@ def check_exsit(process_name):
             return '检测到{}'.format(i)
     return False
 
-def pause(account_token,header):
+def pause(sflag=False):
     global conf
     payload={
-        "account_token":account_token,
+        "account_token":conf.get("config","account_token"),
         "lang":"zh_CN"}
     # sessions=requests.session()
     # sessions.mount('https://webapi.nn.com', HTTP20Adapter())
     # r =sessions.post(url,data=payload,headers = header)
     i=0
     token=''
+    if(sflag):
+        stopp=True
     while(i<3):
         r = requests.post(url,data=payload,headers = header)
         msg=json.loads(r.text)
         if(msg['code']!=400006):
             print(msg['msg'])
+            # toaster.show_toast(msg['msg'],
+            #        icon_path="legod.ico",
+            #        duration=10)
             return True
         else:
             token = login(uname,password)
             if token:
                 conf.set('config','account_token',token)
-                conf.write(open(configPath,'w'))
+                conf.write(open(configPath,'w',encoding='utf_8'))
                 print("原token失效,已写入新的token")
                 payload['account_token']=token
-def load():
+def load(first=False):
         # 当前文件路径
     proDir = os.path.split(os.path.realpath(__file__))[0]
     global appname,sec,uname,password,update,account_token,configPath,lepath,conf
@@ -113,7 +119,7 @@ def load():
     conf = configparser.ConfigParser()
     
     # 读取.ini文件
-    conf.read(configPath,encoding='UTF-8')
+    conf.read(configPath,encoding='UTF-8-sig')
     
     # get()函数读取section里的参数值
     
@@ -123,23 +129,24 @@ def load():
     password=conf.get("config","password")
     update=int(conf.get("config","update"))
     lepath=conf.get("config","path")
-    print('''
-            ***************************************************\n
-            *                                                 *\n
-            *                                                 *\n
-            *              雷神加速器自动暂停工具v1.0         *\n
-            *                     正在运行                     *\n
-            *                    作者：6yy66yy                 *\n
-            *                                                 *\n
-            ***************************************************\n
-            ''')
-    print("目前检测游戏列表:{}".format(appname))
+    if first:
+        print('''
+                ***************************************************\n
+                *                                                 *\n
+                *                                                 *\n
+                *              雷神加速器自动暂停工具v1.2         *\n
+                *                     正在运行                     *\n
+                *                    作者：6yy66yy                 *\n
+                *                                                 *\n
+                ***************************************************\n
+                ''')
+        print("目前检测游戏列表:{}".format(appname))
     
     # account_token=login(uname,password)
     account_token = conf.get("config","account_token")
     return conf
 
-def detection():
+def detection(conn1):
     sw=1
     while 1==1:
         game=check_exsit(appname)
@@ -153,15 +160,18 @@ def detection():
                 time.sleep(1)
             if game is False:
                 try:
-                    pause(account_token,header)
+                    pause()
                 except:
                     s = traceback.format_exc()
                     logging.error(s)
             sw=1
         time.sleep(update)
-global appname,sec,uname,password,update,account_token,configPath,lepath,conf
-if __name__ == '__main__':
-    conf=load()
+        if(conn1.poll()):
+            break
+global appname,sec,uname,password,update,account_token,configPath,lepath,conf,stopp
+stopp=False
+conf=load()
+if __name__ == '__main__': 
     detection()
     
     
