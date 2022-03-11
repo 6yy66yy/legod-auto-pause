@@ -5,7 +5,7 @@ import win32api
 from ctypes import WinError
 import os
 import legod
-from win10toast import ToastNotifier #TODO:未来做消息提醒，这个提醒是阻塞的，而且会关闭线程
+from win10toast import ToastNotifier 
 toaster = ToastNotifier()
 
 class TrayIcon(object):
