@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-03-11 20:35:18
+# @LastEditTime: 2022-03-11 21:00:31
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停
 ###############
@@ -32,7 +32,7 @@ def genearteMD5(str):
     # 否则报错为：hl.update(str)    Unicode-objects must be encoded before hashing
     hl.update(str.encode(encoding='utf-8'))
     return hl.hexdigest()
-url='https://webapi.nn.com/api/user/pause'
+url='https://webapi.leigod.com/api/user/pause'
 header = {
         # ':authority': 'webapi.nn.com',
         # ':method':'POST',
@@ -45,7 +45,7 @@ header = {
         'Accept-Encoding': "gzip, deflate, br",
         'Accept-Language': "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
         'DNT': "1",
-        'Referer': 'https://vip-jiasu.nn.com/',
+        'Referer': 'https://www.legod.com/',
         'Sec-Fetch-Dest': 'empty',
         'Sec-Fetch-Mode': 'cors',
         'Sec-Fetch-Site': 'same-site'
@@ -64,7 +64,7 @@ def login(uname,password):
         'lang':'zh_CN',
         'region_code':1,
         'account_token':'null'}
-    r = requests.post("https://webapi.nn.com/api/auth/login",data=body,headers = header)
+    r = requests.post("https://webapi.leigod.com/api/auth/login",data=body,headers = header)
     msg=json.loads(r.text)
     if(msg['code']==0):
         token=msg['data']['login_info']['account_token']
@@ -95,10 +95,17 @@ def pause(sflag=False):
     if(sflag):
         stopp=True
     while(i<3):
-        if(uname=="" or password=="" or not conf.get("config","account_token") == ""):
+        if(uname=="" or password=="" and conf.get("config","account_token") == ""):
             toaster.show_toast("没填用户名密码或者是token无效","请填写后重启工具via 自动暂停工具v1.2",icon_path=r"legod.ico",duration=3,threaded=True)#多线程不会引起程序关闭，注意ico地址要这样写才不会报错
             break
         r = requests.post(url,data=payload,headers = header)
+        if r.status_code==403:
+            try:
+                token = login(uname,password)
+            except:
+                print("未知错误，可能是请求频繁或者是网址更新")
+                toaster.show_toast("未知错误，可能是请求频繁或者是网址更新","via 自动暂停工具v1.2",icon_path=r"legod.ico",duration=3,threaded=True)
+            continue
         msg=json.loads(r.text)
         if(msg['code']!=400006):
             print(msg['msg'])
