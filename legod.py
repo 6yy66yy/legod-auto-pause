@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-03-11 18:20:59
+# @LastEditTime: 2022-03-11 20:06:09
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停
 ###############
@@ -19,8 +19,8 @@ import time
 import traceback
 import logging
 import hashlib #md5 加密
-# from win10toast import ToastNotifier #TODO:未来做消息提醒，这个提醒是阻塞的，而且会关闭线程
-# toaster = ToastNotifier()
+from win10toast import ToastNotifier #TODO:未来做消息提醒，这个提醒是阻塞的，而且会关闭线程
+toaster = ToastNotifier()
 
 logging.basicConfig(filename='log.log')
 def genearteMD5(str):
@@ -95,15 +95,14 @@ def pause(sflag=False):
     if(sflag):
         stopp=True
     while(i<3):
-        if(uname=="" or password==""):
+        if(uname=="" or password=="" or not conf.get("config","account_token") == ""):
+            toaster.show_toast("没填用户名密码或者是token无效","请填写后重启工具via 自动暂停工具v1.2",icon_path=None,duration=5,threaded=True)
             break
         r = requests.post(url,data=payload,headers = header)
         msg=json.loads(r.text)
         if(msg['code']!=400006):
             print(msg['msg'])
-            # toaster.show_toast(msg['msg'],
-            #        icon_path="legod.ico",
-            #        duration=10)
+            toaster.show_toast(msg['msg'],"via 自动暂停工具v1.2",icon_path=None,duration=5,threaded=True)
             return True
         else:
             token = login(uname,password)

@@ -2,7 +2,7 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-03-11 16:43:02
+# @LastEditTime: 2022-03-11 19:42:30
 # @FilePath: \legod-auto-pause\run.py
 # @Description: 这里写文件描述
 ###############
@@ -26,7 +26,7 @@ if __name__=='__main__':
     pool = multiprocessing.Pool(processes=2)
     pool.apply_async(houtai,(conn1,))
     pool.apply_async(gui,(conn2,))
-
+    
     pool.close()
     pool.join()
     print ("所有进程结束")

@@ -5,6 +5,8 @@ import win32api
 from ctypes import WinError
 import os
 import legod
+from win10toast import ToastNotifier #TODO:未来做消息提醒，这个提醒是阻塞的，而且会关闭线程
+toaster = ToastNotifier()
 
 class TrayIcon(object):
     def __init__(self):
@@ -86,6 +88,7 @@ class TrayIcon(object):
                 os.system('start '+legod.lepath)
             else:
                 print("没填雷神路径")
+                toaster.show_toast("没填雷神路径","via 自动暂停工具v1.2",icon_path=None,duration=5,threaded=True)
         elif id == 1024:
             legod.pause()
             print ("暂停时长")
