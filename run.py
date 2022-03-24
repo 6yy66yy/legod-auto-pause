@@ -2,9 +2,9 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-03-11 20:10:37
+# @LastEditTime: 2022-03-24 15:49:33
 # @FilePath: \legod-auto-pause\run.py
-# @Description: 这里写文件描述
+# @Description: 主程序，控制托盘和暂停程序，不可独立运行
 ###############
 
 import legod

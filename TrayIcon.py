@@ -1,4 +1,13 @@
 
+###############
+# @Author: 6yy66yy
+# @Date: 2022-03-11 14:13:00
+# @LastEditors: 6yy66yy
+# @LastEditTime: 2022-03-24 15:51:05
+# @FilePath: \legod-auto-pause\TrayIcon.py
+# @Description: 托盘控制程序，不可独立运行
+###############
+
 import win32con
 import win32gui
 import win32api
