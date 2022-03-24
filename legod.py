@@ -4,9 +4,9 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-03-11 21:00:31
+# @LastEditTime: 2022-03-24 15:51:26
 # @FilePath: \legod-auto-pause\legod.py
-# @Description: 雷神加速器时长自动暂停
+# @Description: 雷神加速器时长自动暂停，暂停程序，可以独立运行。
 ###############
 from concurrent.futures import ThreadPoolExecutor
 import requests
@@ -176,9 +176,29 @@ def detection(conn1):
         time.sleep(update)
         if(conn1.poll()):
             break
+def detection():
+    sw=1
+    while 1==1:
+        game=check_exsit(appname)
+        if(game):
+            if(sw==1):
+                print(game)
+                sw=0
+        elif(sw==0):
+            for i in range(1,sec):
+                game=check_exsit(appname)
+                time.sleep(1)
+            if game is False:
+                try:
+                    pause()
+                except:
+                    s = traceback.format_exc()
+                    logging.error(s)
+            sw=1
+        time.sleep(update)
 global appname,sec,uname,password,update,account_token,configPath,lepath,conf,stopp
 stopp=False
-conf=load()
+conf=load(first=True)
 if __name__ == '__main__': 
     detection()
     
