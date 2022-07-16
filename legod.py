@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-04-29 17:00:41
+# @LastEditTime: 2022-07-17 00:12:24
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停，暂停程序，可以独立运行。
 ###############
@@ -16,15 +16,22 @@ import configparser
 # from hyper.contrib import HTTP20Adapter
 import win32com.client
 import time
-import pythoncom
-import traceback
-import logging
+# import logging #log记录组件，目前没啥用
 import hashlib #md5 加密
-import win32gui
+import sys
 
-logging.basicConfig(filename='log.log')
 class legod(object):
-    def __init__(self,first):
+    def __init__(self,first,filedir='None'):
+        print('''
+***************************************************\n
+*                                                 *\n
+*                                                 *\n
+*              雷神加速器自动暂停工具v2.0         *\n
+*                     正在运行                    *\n
+*                   作者:6yy66yy                  *\n
+*                                                 *\n
+***************************************************\n
+''')
         self.url='https://webapi.leigod.com/api/user/pause'
         self.header = {
                 # ':authority': 'webapi.nn.com',
@@ -43,13 +50,13 @@ class legod(object):
                 'Sec-Fetch-Mode': 'cors',
                 'Sec-Fetch-Site': 'same-site'
                         }
-        global appname,sec,uname,password,update,account_token,configPath,lepath,conf,stopp
+        self.Dir=filedir
         self.stopp=False
         self.conf=self.load(first)
 
     def genearteMD5(self,str):
         # 创建md5对象
-        if __debug__:#debug模式下，在config中填入md5加密后的密码，一定程度上保护密码安全，下一版本会使用本地的rsa加解密
+        if isDebug:#debug模式下，在config中填入md5加密后的密码，一定程度上保护密码安全，下一版本会使用本地的rsa加解密
             return str
         hl = hashlib.md5()
         # Tips
@@ -82,8 +89,6 @@ class legod(object):
 
     def check_exsit(self):
         ls=self.appname.split(',')
-        # pythoncom.CoInitialize()
-        # pythoncom.CoUninitialize()
         WMI = win32com.client.GetObject('winmgmts:')
         for i in ls:
             processCodeCov = WMI.ExecQuery('select * from Win32_Process where Name like "%{}%"'.format(i+'.exe'))
@@ -106,8 +111,8 @@ class legod(object):
         while(i<3):
             i+=1
             if(self.uname=="" or self.password=="" and self.conf.get("config","account_token") == ""):
-                print("没填用户名密码或者是token无效","请填写后重启工具")
-                tmp_msg="没填用户名密码或者是token无效","请填写后重启工具"
+                print("没填用户名密码或者是token无效,请填写后重启工具")
+                tmp_msg="没填用户名密码或者是token无效,请填写后重启工具"
                 break
             r = requests.post(self.url,data=payload,headers = self.header)
             if r.status_code==403:
@@ -135,11 +140,20 @@ class legod(object):
                     break
         return tmp_msg
     def load(self,first=False):
-            # 当前文件路径
-        proDir = os.path.split(os.path.realpath(__file__))[0]
+        # 当前文件路径
+        if __name__ == '__main__':
+            proDir = os.path.split(os.path.realpath(__file__))[0]
+        elif self.Dir != 'None':
+            proDir = self.Dir
+        else:
+            e=Exception('调用此函数需要导入主函数所在路径')
+            raise e
         global appname,sec,uname,password,update,account_token,configPath,lepath,conf
         # 在当前文件路径下查找.ini文件
-        self.configPath = os.path.join(proDir, "config.ini")
+        if isDebug:
+            print("debug模式开启,密码不加密传输")
+            print("当前加载配置为"+configfile)
+        self.configPath = os.path.join(proDir, configfile)
         self.conf = configparser.ConfigParser()
 
         # 读取.ini文件
@@ -153,18 +167,7 @@ class legod(object):
         self.password=self.conf.get("config","password")
         self.update=int(self.conf.get("config","update"))
         self.lepath=self.conf.get("config","path")
-        if first:
-            print('''
-                    ***************************************************\n
-                    *                                                 *\n
-                    *                                                 *\n
-                    *              雷神加速器自动暂停工具v2.0         *\n
-                    *                     正在运行                     *\n
-                    *                    作者:6yy66yy                 *\n
-                    *                                                 *\n
-                    ***************************************************\n
-                    ''')
-            print("目前检测游戏列表:{}".format(self.appname))
+        print("目前检测游戏列表:{}".format(self.appname))
 
         # account_token=login(self.uname,self.password)
         account_token = self.conf.get("config","account_token")
@@ -185,10 +188,16 @@ class legod(object):
                     self.pause()
                 sw=1
             time.sleep(self.update)
+# 常量定义区
+## 是否为debug模式
+isDebug = True if sys.gettrace() else False
+## 配置config文件名
+configfile="config.ini" if not isDebug else "config-dev.ini"
+
+## 配置日志
+# logging.basicConfig(filename='log.log')
 
 if __name__ == '__main__': 
-    if __debug__:
-        print("debug模式开启,密码不加密传输")
     t=legod(True)
     t.detection()
     

@@ -3,7 +3,7 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-04-29 16:45:57
+# @LastEditTime: 2022-04-29 22:03:52
 # @FilePath: \legod-auto-pause\TrayIcon.py
 # @Description: 托盘控制程序，依赖legod.py运行
 ###############
@@ -45,8 +45,9 @@ class TrayIcon(object):
         self.hwnd = win32gui.CreateWindow(wndclass.lpszClassName, 'Legod自动暂停', style, 0, 0,
                                           win32con.CW_USEDEFAULT, win32con.CW_USEDEFAULT, 0, 0, hinst, None)
         win32gui.UpdateWindow(self.hwnd)
+        Dir=os.path.split(os.path.realpath(__file__))[0]
         self._createIcon()
-        self.legod=legod.legod(True);
+        self.legod=legod.legod(True,Dir);
         self.stopflag=False
         t1 = Thread(target=self.detection, args=())
         t1.start()
@@ -151,7 +152,7 @@ class TrayIcon(object):
                         msg=self.legod.pause()
                         self.taskbar_msg("暂停结果：",msg)
                     except:
-                        self.taskbar_msg("出错了")
+                        self.taskbar_msg("出错了","未知错误")
                 sw=1
             sleep(self.legod.update)
             if(self.stopflag):
@@ -159,7 +160,5 @@ class TrayIcon(object):
                 pythoncom.CoUninitialize()
                 break
 if __name__ == '__main__':
-    if __debug__:
-        print("debug模式开启,密码不加密传输")
     t = TrayIcon()
     win32gui.PumpMessages()

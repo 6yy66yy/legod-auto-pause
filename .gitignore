@@ -10,3 +10,4 @@ TrayIcon.spec
 __pycache__/run.cpython-37.pyc
 __pycache__/TrayIcon.cpython-37.pyc
 .ico.spec
+config-dev.ini
