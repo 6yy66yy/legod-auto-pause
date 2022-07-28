@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-07-17 00:12:24
+# @LastEditTime: 2022-07-17 17:37:46
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停，暂停程序，可以独立运行。
 ###############
@@ -123,7 +123,7 @@ class legod(object):
                     tmp_msg="未知错误，可能是请求频繁或者是网址更新"
                 continue
             msg=json.loads(r.text)
-            print(msg['msg'])
+            print("暂停结果：",msg['msg'])
             if(msg['code']!=400006):
                 tmp_msg=msg['msg']
                 return tmp_msg
