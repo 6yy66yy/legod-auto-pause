@@ -1,14 +1,21 @@
 # ·legod-auto-pause
 雷神加速器时长自动暂停
-**准备更新2.0版本，不再使用命令行，增加托盘和弹窗，尽请期待**
 
       之前的在网上的脚本发现用不了了，
       所以自己写了一个脚本放在这里。
+
+## 下载和教程
+
+下载地址：[点我](https://github.com/6yy66yy/legod-auto-pause/releases)
+
+配置和使用教程：[点我](https://github.com/6yy66yy/legod-auto-pause/wiki/新手上路)
+
 ## 一、用前须知
 
 1. 源码只是放上来看看，想要程序去*[release](https://github.com/6yy66yy/legod-auto-pause/releases/tag/%E5%8F%91%E5%B8%83)*里面下载zip（只提供exe文件）
 
 2. 下载后先用记事本打开config.ini配置一下用户名和密码，其他配置项可选，注释很清楚
+
 ```config
 [config]
 # 雷神路径
@@ -29,6 +36,7 @@ update = 1
 # 注意：token会过期，需要时常手动获取
 account_token = 
 ```
+
 3. token的优先级大于用户名密码，所以不填账户密码只填token也是可以用的
 
 4. token会过期，如果填入用户名密码会自动获取新的token
