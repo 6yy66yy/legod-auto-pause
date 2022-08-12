@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-07-17 17:37:46
+# @LastEditTime: 2022-08-06 00:15:51
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停，暂停程序，可以独立运行。
 ###############
@@ -26,7 +26,7 @@ class legod(object):
 ***************************************************\n
 *                                                 *\n
 *                                                 *\n
-*              雷神加速器自动暂停工具v2.0         *\n
+*              雷神加速器自动暂停工具v2.1         *\n
 *                     正在运行                    *\n
 *                   作者:6yy66yy                  *\n
 *                                                 *\n

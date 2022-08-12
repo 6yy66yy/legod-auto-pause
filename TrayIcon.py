@@ -3,7 +3,7 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-04-29 22:03:52
+# @LastEditTime: 2022-08-13 00:18:13
 # @FilePath: \legod-auto-pause\TrayIcon.py
 # @Description: 托盘控制程序，依赖legod.py运行
 ###############
@@ -91,7 +91,7 @@ class TrayIcon(object):
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1024, "暂停时长")
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1025, "设置")
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1026, "退出并暂停时长")
-            win32gui.AppendMenu(menu, win32con.MF_DISABLED, 0, "自动暂停工具v2.0")
+            win32gui.AppendMenu(menu, win32con.MF_DISABLED, 0, "自动暂停工具v2.1    ")
             win32gui.AppendMenu(menu, win32con.MF_DISABLED, 0, "Author: 6yy66yy")
             pos = win32gui.GetCursorPos()
             win32gui.SetForegroundWindow(self.hwnd)
