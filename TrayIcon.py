@@ -3,7 +3,7 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-08-13 00:18:13
+# @LastEditTime: 2022-10-29 01:31:42
 # @FilePath: \legod-auto-pause\TrayIcon.py
 # @Description: 托盘控制程序，依赖legod.py运行
 ###############
@@ -63,7 +63,7 @@ class TrayIcon(object):
             print('未找到icon文件，使用默认')
             hicon = win32gui.LoadIcon(0, win32con.IDI_APPLICATION)
         flags = win32gui.NIF_ICON | win32gui.NIF_MESSAGE | win32gui.NIF_TIP
-        nid = (self.hwnd, 0, flags, win32con.WM_USER + 20, hicon, "LegodPause Service")
+        nid = (self.hwnd, 0, flags, win32con.WM_USER + 20, hicon, "自动暂停工具")
         try:
             win32gui.Shell_NotifyIcon(win32gui.NIM_ADD, nid)
             self.nid=nid
@@ -85,7 +85,6 @@ class TrayIcon(object):
         #     print("You double-clicked me - goodbye")
         #     win32gui.DestroyWindow(self.hwnd)
         if lparam == win32con.WM_RBUTTONUP:
-            # print("You right clicked me.")
             menu = win32gui.CreatePopupMenu()
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1023, "打开雷神加速器")
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1024, "暂停时长")
@@ -142,6 +141,8 @@ class TrayIcon(object):
             if(game):
                 if(sw==1):
                     print(game)
+                    nid = (self.nid[0],self.nid[1],self.nid[2],self.nid[3],self.nid[4],game)
+                    win32gui.Shell_NotifyIcon(win32gui.NIM_MODIFY, nid)
                     sw=0
             elif(sw==0):
                 for i in range(1,self.legod.sec):
@@ -151,6 +152,8 @@ class TrayIcon(object):
                     try:
                         msg=self.legod.pause()
                         self.taskbar_msg("暂停结果：",msg)
+                        nid = (self.nid[0],self.nid[1],self.nid[2],self.nid[3],self.nid[4],"检测中...")
+                        win32gui.Shell_NotifyIcon(win32gui.NIM_MODIFY, nid)
                     except:
                         self.taskbar_msg("出错了","未知错误")
                 sw=1
