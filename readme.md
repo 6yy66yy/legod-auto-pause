@@ -12,7 +12,7 @@
 
 ## 一、用前须知
 
-1. 源码只是放上来看看，想要程序去*[release](https://github.com/6yy66yy/legod-auto-pause/releases/tag/%E5%8F%91%E5%B8%83)*里面下载zip（只提供exe文件）
+1. 源码只是放上来看看，想要程序去[**release**](https://github.com/6yy66yy/legod-auto-pause/releases)里面下载zip（只提供exe文件）
 
 2. 下载后先用记事本打开config.ini配置一下用户名和密码，其他配置项可选，注释很清楚
 
