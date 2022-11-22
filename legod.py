@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-08-06 00:15:51
+# @LastEditTime: 2022-11-22 13:53:54
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停，暂停程序，可以独立运行。
 ###############
@@ -166,7 +166,7 @@ class legod(object):
         self.uname=self.conf.get("config","uname")
         self.password=self.conf.get("config","password")
         self.update=int(self.conf.get("config","update"))
-        self.lepath=self.conf.get("config","path")
+        self.lepath=self.conf.get("config","path").strip('"')
         print("目前检测游戏列表:{}".format(self.appname))
 
         # account_token=login(self.uname,self.password)

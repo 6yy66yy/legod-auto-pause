@@ -3,7 +3,7 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-10-29 01:31:42
+# @LastEditTime: 2022-11-22 13:53:20
 # @FilePath: \legod-auto-pause\TrayIcon.py
 # @Description: 托盘控制程序，依赖legod.py运行
 ###############
@@ -18,6 +18,16 @@ import legod
 from time import sleep
 from threading import Thread
 import pythoncom
+import logging
+
+logging.basicConfig(level=logging.DEBUG #设置日志输出格式
+                    ,filename="demo.log" #log日志输出的文件位置和文件名
+                    ,filemode="w" #文件的写入格式，w为重新写入文件，默认是追加
+                    ,format="%(asctime)s - %(levelname)-9s - %(filename)-8s : %(lineno)s line - %(message)s" #日志输出的格式
+                    # -8表示占位符，让输出左对齐，输出长度都为8位
+                    ,datefmt="%Y-%m-%d %H:%M:%S" #时间输出的格式
+                    )
+
 
 class TrayIcon(object):
     def __init__(self):
@@ -102,7 +112,7 @@ class TrayIcon(object):
         id = win32api.LOWORD(wparam)
         if id == 1023:
             if(self.legod.lepath!=""):
-                os.system('start '+self.legod.lepath)
+                os.system('start "" "'+self.legod.lepath+'"')
             else:
                 print("没填雷神路径")
                 self.taskbar_msg("没填雷神路径","尝试设置一下\n自动暂停工具v2.0")
