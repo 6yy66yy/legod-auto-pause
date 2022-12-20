@@ -3,7 +3,7 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-11-22 13:53:20
+# @LastEditTime: 2022-12-20 19:59:48
 # @FilePath: \legod-auto-pause\TrayIcon.py
 # @Description: 托盘控制程序，依赖legod.py运行
 ###############
@@ -20,10 +20,13 @@ from threading import Thread
 import pythoncom
 import logging
 
-logging.basicConfig(level=logging.DEBUG #设置日志输出格式
+#设置日志输出格式
+logLevel = logging.DEBUG if legod.isDebug else logging.ERROR
+
+logging.basicConfig(level=logLevel 
                     ,filename="demo.log" #log日志输出的文件位置和文件名
                     ,filemode="w" #文件的写入格式，w为重新写入文件，默认是追加
-                    ,format="%(asctime)s - %(levelname)-9s - %(filename)-8s : %(lineno)s line - %(message)s" #日志输出的格式
+                    ,format="%(asctime)s - %(levelname)-8s - %(filename)-8s : %(lineno)s line - %(message)s" #日志输出的格式
                     # -8表示占位符，让输出左对齐，输出长度都为8位
                     ,datefmt="%Y-%m-%d %H:%M:%S" #时间输出的格式
                     )
@@ -50,6 +53,7 @@ class TrayIcon(object):
             classAtom = win32gui.RegisterClass(wndclass)
         except win32gui.error as err_info:
             if err_info.winerror != WinError.ERROR_CLASS_ALREADY_EXISTS:
+                logging.error("窗口注册失败")
                 raise
         style = win32con.WS_OVERLAPPED | win32con.WS_SYSMENU
         self.hwnd = win32gui.CreateWindow(wndclass.lpszClassName, 'Legod自动暂停', style, 0, 0,
@@ -78,6 +82,7 @@ class TrayIcon(object):
             win32gui.Shell_NotifyIcon(win32gui.NIM_ADD, nid)
             self.nid=nid
         except win32gui.error:
+            logging.error("创建icon失败")
             print("Failed to add the taskbar icon - is explorer running?")
 
     def OnRestart(self, hwnd, msg, wparam, lparam):
@@ -100,7 +105,7 @@ class TrayIcon(object):
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1024, "暂停时长")
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1025, "设置")
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1026, "退出并暂停时长")
-            win32gui.AppendMenu(menu, win32con.MF_DISABLED, 0, "自动暂停工具v2.1    ")
+            win32gui.AppendMenu(menu, win32con.MF_DISABLED, 0, "自动暂停工具v2.2    ")
             win32gui.AppendMenu(menu, win32con.MF_DISABLED, 0, "Author: 6yy66yy")
             pos = win32gui.GetCursorPos()
             win32gui.SetForegroundWindow(self.hwnd)
@@ -111,17 +116,26 @@ class TrayIcon(object):
     def OnCommand(self, hwnd, msg, wparam, lparam):
         id = win32api.LOWORD(wparam)
         if id == 1023:
+            logging.debug("尝试打开雷神")
             if(self.legod.lepath!=""):
                 os.system('start "" "'+self.legod.lepath+'"')
             else:
                 print("没填雷神路径")
                 self.taskbar_msg("没填雷神路径","尝试设置一下\n自动暂停工具v2.0")
+                logging.info("没填雷神路径")
         elif id == 1024:
-            self.taskbar_msg("暂停时长结果",self.legod.pause())
+            logging.debug("尝试暂停时长")
+            msg = self.legod.pause()
+            self.taskbar_msg("暂停时长结果",msg)
+            logging.info("暂停结果:%s"%msg)
             print ("暂停时长")
         elif id == 1025:
             print("打开设置")
-            os.system('start config.ini')
+            self.taskbar_msg("打开设置","保存并关闭窗口以更新设置")
+            os.system(legod.configfile)
+            self.legod.load()
+            self.taskbar_msg("设置更新",'新的游戏列表为:%s'%self.legod.appname)
+            logging.info("更新ini文件")
         elif id == 1026:
             print ("退出并暂停时长")
             self.stopflag=True
@@ -173,5 +187,6 @@ class TrayIcon(object):
                 pythoncom.CoUninitialize()
                 break
 if __name__ == '__main__':
+    logging.debug("开始运行！")
     t = TrayIcon()
     win32gui.PumpMessages()

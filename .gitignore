@@ -1,4 +1,4 @@
-log.log
+*.log
 dist/*
 build/*
 _pycache_/*

@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-11-22 13:53:54
+# @LastEditTime: 2022-12-20 19:47:06
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停，暂停程序，可以独立运行。
 ###############
@@ -18,7 +18,7 @@ import win32com.client
 import time
 # import logging #log记录组件，目前没啥用
 import hashlib #md5 加密
-import sys
+from sys import gettrace
 
 class legod(object):
     def __init__(self,first,filedir='None'):
@@ -26,7 +26,7 @@ class legod(object):
 ***************************************************\n
 *                                                 *\n
 *                                                 *\n
-*              雷神加速器自动暂停工具v2.1         *\n
+*              雷神加速器自动暂停工具v2.2         *\n
 *                     正在运行                    *\n
 *                   作者:6yy66yy                  *\n
 *                                                 *\n
@@ -190,7 +190,7 @@ class legod(object):
             time.sleep(self.update)
 # 常量定义区
 ## 是否为debug模式
-isDebug = True if sys.gettrace() else False
+isDebug = True if gettrace() else False
 ## 配置config文件名
 configfile="config.ini" if not isDebug else "config-dev.ini"
 
