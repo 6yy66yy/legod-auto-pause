@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-12-20 19:47:06
+# @LastEditTime: 2023-01-20 01:30:42
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停，暂停程序，可以独立运行。
 ###############
@@ -52,11 +52,13 @@ class legod(object):
                         }
         self.Dir=filedir
         self.stopp=False
-        self.conf=self.load(first)
+        self.conf=self.load()
 
     def genearteMD5(self,str):
-        # 创建md5对象
-        if isDebug:#debug模式下，在config中填入md5加密后的密码，一定程度上保护密码安全，下一版本会使用本地的rsa加解密
+        '''
+        创建md5对象
+        '''
+        if isDebug:#debug模式下，在config中填入md5加密后的密码。todo:接下来考虑如何加密存储密码，保证数据安全。目前想法:输入后自动替换md5
             return str
         hl = hashlib.md5()
         # Tips
@@ -66,6 +68,13 @@ class legod(object):
         return hl.hexdigest()
 
     def login(self,uname,password):
+        '''
+        登录函数，当token无效的时候调用登录函数获取新的token
+
+        Return:
+            成功:True+新的token
+            失败:False+错误信息
+        '''
         if(uname=="" or password==""):
             return False
         token=""
@@ -88,15 +97,23 @@ class legod(object):
             return False,msg['msg']
 
     def check_exsit(self):
-        ls=self.appname.split(',')
+        '''
+        查询进程中是否存在游戏列表中的进程
+        '''
         WMI = win32com.client.GetObject('winmgmts:')
-        for i in ls:
+        for i in self.applist:
             processCodeCov = WMI.ExecQuery('select * from Win32_Process where Name like "%{}%"'.format(i+'.exe'))
             if len(processCodeCov) > 0:
                 return '检测到{}'.format(i)
         return False
 
-    def pause(self,sflag=False):
+    def pause(self):
+        '''
+        暂停加速,调用官网api
+
+        Returns:
+            官网返回的信息
+        '''
         payload={
             "account_token":self.conf.get("config","account_token"),
             "lang":"zh_CN"}
@@ -106,8 +123,6 @@ class legod(object):
         i=0
         token=''
         tmp_msg=''
-        if(sflag):
-            stopp=True
         while(i<3):
             i+=1
             if(self.uname=="" or self.password=="" and self.conf.get("config","account_token") == ""):
@@ -139,7 +154,15 @@ class legod(object):
                     tmp_msg=token
                     break
         return tmp_msg
-    def load(self,first=False):
+    def load(self):
+        '''
+        加载配置文件
+
+            文件名:configfile(在文件头定义,默认为config.ini)
+
+        Returns:
+            conf元组
+        '''
         # 当前文件路径
         if __name__ == '__main__':
             proDir = os.path.split(os.path.realpath(__file__))[0]
@@ -148,9 +171,8 @@ class legod(object):
         else:
             e=Exception('调用此函数需要导入主函数所在路径')
             raise e
-        global appname,sec,uname,password,update,account_token,configPath,lepath,conf
-        # 在当前文件路径下查找.ini文件
-        if isDebug:
+        # global appname,sec,uname,password,update,account_token,configPath,lepath,conf # 大概没用注释一下
+        if isDebug:     # 在当前文件路径下查找.ini文件
             print("debug模式开启,密码不加密传输")
             print("当前加载配置为"+configfile)
         self.configPath = os.path.join(proDir, configfile)
@@ -160,14 +182,15 @@ class legod(object):
         self.conf.read(self.configPath,encoding='UTF-8-sig')
 
         # get()函数读取section里的参数值
+        appname = self.conf.get('config','games').replace("，",",") # 先对字符串中的中文逗号进行替换
+        self.sec = int(self.conf.get('config','looptime'))          # 允许游戏关闭的时间（在此时间内切换游戏不会关闭加速器）单位：秒
+        self.uname=self.conf.get("config","uname")                  # 用户名/手机号
+        self.password=self.conf.get("config","password")            # 密码
+        self.update=int(self.conf.get("config","update"))           # 检测时间，多少秒检测一次程序
+        self.lepath=self.conf.get("config","path").strip('"')       # 雷神路径,替换掉外部的\"
 
-        self.appname = self.conf.get('config','games')
-        self.sec = int(self.conf.get('config','looptime'))
-        self.uname=self.conf.get("config","uname")
-        self.password=self.conf.get("config","password")
-        self.update=int(self.conf.get("config","update"))
-        self.lepath=self.conf.get("config","path").strip('"')
-        print("目前检测游戏列表:{}".format(self.appname))
+        self.applist = appname.split(',')                           # 英文逗号分割成列表
+        print("目前检测游戏列表:{}".format(appname))
 
         # account_token=login(self.uname,self.password)
         account_token = self.conf.get("config","account_token")

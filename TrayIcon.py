@@ -3,7 +3,7 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2022-12-20 19:59:48
+# @LastEditTime: 2023-01-20 01:01:26
 # @FilePath: \legod-auto-pause\TrayIcon.py
 # @Description: 托盘控制程序，依赖legod.py运行
 ###############
@@ -65,7 +65,7 @@ class TrayIcon(object):
         self.stopflag=False
         t1 = Thread(target=self.detection, args=())
         t1.start()
-        self.taskbar_msg("自动暂停工具运行成功",'游戏列表:%s'%self.legod.appname)
+        self.taskbar_msg("自动暂停工具运行成功",'游戏列表:%s'%self.legod.applist)
 
     def _createIcon(self):
         hinst = win32api.GetModuleHandle(None)
@@ -74,7 +74,7 @@ class TrayIcon(object):
             icon_flags = win32con.LR_LOADFROMFILE | win32con.LR_DEFAULTSIZE
             hicon = win32gui.LoadImage(hinst, iconPathName, win32con.IMAGE_ICON, 0, 0, icon_flags)
         else:
-            print('未找到icon文件，使用默认')
+            print('未找到icon文件,使用默认')
             hicon = win32gui.LoadIcon(0, win32con.IDI_APPLICATION)
         flags = win32gui.NIF_ICON | win32gui.NIF_MESSAGE | win32gui.NIF_TIP
         nid = (self.hwnd, 0, flags, win32con.WM_USER + 20, hicon, "自动暂停工具")
