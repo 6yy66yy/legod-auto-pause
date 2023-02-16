@@ -3,7 +3,7 @@ name: Pack on windows
 on: [push]
 
 jobs:
-  build_and_packing:
+  build:
 
     runs-on: windows-latest
     strategy:
@@ -23,8 +23,15 @@ jobs:
           python -m pip install -r requirements.txt
       - name: Pack with pyinstaller
         run: |
-          pyinstaller -F .\legod.py -i .\legod.ico -n legodpause-CommandLine
-          pyinstaller -F -w. \TrayIcon.py -i .\legod.ico -n legodpause-NonCommand
-      - name: Archive production artifacts
+          pyinstaller .\legod.py -i .\legod.ico -n legodpause-CommandLine.exe
+          pyinstaller .\TrayIcon.py -i .\legod.ico -n legodpause-NonCommand.exe
+      - name: Packing release files
         uses: actions/upload-artifact@v3
+        with: legod-auto-pause
+        path: |
+          ./dist/*.exe
+          ./config.ini
+          ./legod.ico
 
+
+          
