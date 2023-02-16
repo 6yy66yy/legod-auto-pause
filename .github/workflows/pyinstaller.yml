@@ -1,0 +1,26 @@
+name: Pack on windows
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Pack with pyinstaller
+        run: |
+          pyinstaller .\legod.py -i .\legod.ico -n legodpause-CommandLine.exe
+          pyinstaller .\TrayIcon.py -i .\legod.ico -n legodpause-NonCommand.exe
