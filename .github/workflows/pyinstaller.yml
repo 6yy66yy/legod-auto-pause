@@ -30,10 +30,10 @@ jobs:
         with: 
           name: legod-auto-pause
           path: |
-          ./dist/legodpause-CommandLine.exe
-          ./dist/legodpause-NonCommand.exe
-          ./config.ini
-          ./legod.ico
+            ./dist/legodpause-CommandLine.exe
+            ./dist/legodpause-NonCommand.exe
+            ./config.ini
+            ./legod.ico
 
 
           
