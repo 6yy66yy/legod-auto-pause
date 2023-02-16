@@ -165,7 +165,7 @@ class legod(object):
         '''
         # 当前文件路径
         if __name__ == '__main__':
-            proDir = os.path.split(os.path.realpath(__file__))[0]
+            proDir = os.path.dirname(sys.argv[0])
         elif self.Dir != 'None':
             proDir = self.Dir
         else:
@@ -180,21 +180,26 @@ class legod(object):
 
         # 读取.ini文件
         self.conf.read(self.configPath,encoding='UTF-8-sig')
+        # 捕获异常并打印错误信息
+        try:
+            # get()函数读取section里的参数值
+            appname = self.conf.get('config','games').replace("，",",") # 先对字符串中的中文逗号进行替换
+            self.sec = int(self.conf.get('config','looptime'))          # 允许游戏关闭的时间（在此时间内切换游戏不会关闭加速器）单位：秒
+            self.uname=self.conf.get("config","uname")                  # 用户名/手机号
+            self.password=self.conf.get("config","password")            # 密码
+            self.update=int(self.conf.get("config","update"))           # 检测时间，多少秒检测一次程序
+            self.lepath=self.conf.get("config","path").strip('"')       # 雷神路径,替换掉外部的\"
 
-        # get()函数读取section里的参数值
-        appname = self.conf.get('config','games').replace("，",",") # 先对字符串中的中文逗号进行替换
-        self.sec = int(self.conf.get('config','looptime'))          # 允许游戏关闭的时间（在此时间内切换游戏不会关闭加速器）单位：秒
-        self.uname=self.conf.get("config","uname")                  # 用户名/手机号
-        self.password=self.conf.get("config","password")            # 密码
-        self.update=int(self.conf.get("config","update"))           # 检测时间，多少秒检测一次程序
-        self.lepath=self.conf.get("config","path").strip('"')       # 雷神路径,替换掉外部的\"
+            self.applist = appname.split(',')                           # 英文逗号分割成列表
+            print("目前检测游戏列表:{}".format(appname))
 
-        self.applist = appname.split(',')                           # 英文逗号分割成列表
-        print("目前检测游戏列表:{}".format(appname))
-
-        # account_token=login(self.uname,self.password)
-        account_token = self.conf.get("config","account_token")
-        return self.conf
+            # account_token=login(self.uname,self.password)
+            account_token = self.conf.get("config","account_token")
+            return self.conf
+        except Exception as e:
+            print("文件加载地址为"+self.configPath)
+            print("配置文件加载失败,请检查配置文件是否正确")
+            print(e)
     def detection(self):
         sw=1
         while 1==1:

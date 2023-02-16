@@ -59,7 +59,7 @@ class TrayIcon(object):
         self.hwnd = win32gui.CreateWindow(wndclass.lpszClassName, 'Legod自动暂停', style, 0, 0,
                                           win32con.CW_USEDEFAULT, win32con.CW_USEDEFAULT, 0, 0, hinst, None)
         win32gui.UpdateWindow(self.hwnd)
-        Dir=os.path.split(os.path.realpath(__file__))[0]
+        Dir=os.path.dirname(sys.argv[0])
         self._createIcon()
         self.legod=legod.legod(True,Dir);
         self.stopflag=False
