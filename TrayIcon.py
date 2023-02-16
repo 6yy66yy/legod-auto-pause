@@ -19,6 +19,7 @@ from time import sleep
 from threading import Thread
 import pythoncom
 import logging
+import sys
 
 #设置日志输出格式
 logLevel = logging.DEBUG if legod.isDebug else logging.ERROR
@@ -143,6 +144,8 @@ class TrayIcon(object):
             self.taskbar_msg("退出并暂停时长结果",msg)
             sleep(2)
             win32gui.DestroyWindow(self.hwnd)
+            # 结束进程回收资源
+            os._exit(0)
         else:
             print ("Unknown command -", id)
     def taskbar_msg(self,title,msg):
