@@ -25,15 +25,20 @@ jobs:
         run: |
           pyinstaller -F .\legod.py -i .\legod.ico -n legodpause-CommandLine
           pyinstaller -F -w .\TrayIcon.py -i .\legod.ico -n legodpause-NonCommand
-      - name: Packing release files
+      - name: Move exe to parent directory
+        run: |
+          cp ./dist/legodpause-CommandLine.exe .
+          cp ./dist/legodpause-NonCommand.exe .
+      - name: Pack release files
         uses: actions/upload-artifact@v3
         with: 
           name: legod-auto-pause
           path: |
-            ./dist/legodpause-CommandLine.exe
-            ./dist/legodpause-NonCommand.exe
+            ./legodpause-CommandLine.exe
+            ./legodpause-NonCommand.exe
             ./config.ini
             ./legod.ico
+
 
 
           
