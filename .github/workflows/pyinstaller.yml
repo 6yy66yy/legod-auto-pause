@@ -27,8 +27,9 @@ jobs:
           pyinstaller -F -w .\TrayIcon.py -i .\legod.ico -n legodpause-NonCommand
       - name: Packing release files
         uses: actions/upload-artifact@v3
-        with: legod-auto-pause
-        path: |
+        with: 
+          name: legod-auto-pause
+          path: |
           ./dist/legodpause-CommandLine.exe
           ./dist/legodpause-NonCommand.exe
           ./config.ini
