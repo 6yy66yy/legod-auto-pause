@@ -23,13 +23,14 @@ jobs:
           python -m pip install -r requirements.txt
       - name: Pack with pyinstaller
         run: |
-          pyinstaller .\legod.py -i .\legod.ico -n legodpause-CommandLine.exe
-          pyinstaller .\TrayIcon.py -i .\legod.ico -n legodpause-NonCommand.exe
+          pyinstaller -F .\legod.py -i .\legod.ico -n legodpause-CommandLine
+          pyinstaller -F -w .\TrayIcon.py -i .\legod.ico -n legodpause-NonCommand
       - name: Packing release files
         uses: actions/upload-artifact@v3
         with: legod-auto-pause
         path: |
-          ./dist/*.exe
+          ./dist/legodpause-CommandLine.exe
+          ./dist/legodpause-NonCommand.exe
           ./config.ini
           ./legod.ico
 
