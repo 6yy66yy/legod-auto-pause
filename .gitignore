@@ -12,3 +12,4 @@ __pycache__/TrayIcon.cpython-37.pyc
 .ico.spec
 config-dev.ini
 .vscode/
+*.spec
