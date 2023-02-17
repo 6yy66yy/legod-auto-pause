@@ -1,0 +1,44 @@
+name: Pack on windows
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+          python -m pip install -r requirements.txt
+      - name: Pack with pyinstaller
+        run: |
+          pyinstaller -F .\legod.py -i .\legod.ico -n legodpause-CommandLine
+          pyinstaller -F -w .\TrayIcon.py -i .\legod.ico -n legodpause-NonCommand
+      - name: Move exe to parent directory
+        run: |
+          cp ./dist/legodpause-CommandLine.exe .
+          cp ./dist/legodpause-NonCommand.exe .
+      - name: Pack release files
+        uses: actions/upload-artifact@v3
+        with: 
+          name: legod-auto-pause
+          path: |
+            ./legodpause-CommandLine.exe
+            ./legodpause-NonCommand.exe
+            ./config.ini
+            ./legod.ico
+
+
+
+          

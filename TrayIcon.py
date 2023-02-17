@@ -19,6 +19,7 @@ from time import sleep
 from threading import Thread
 import pythoncom
 import logging
+import sys
 
 #设置日志输出格式
 logLevel = logging.DEBUG if legod.isDebug else logging.ERROR
@@ -59,7 +60,7 @@ class TrayIcon(object):
         self.hwnd = win32gui.CreateWindow(wndclass.lpszClassName, 'Legod自动暂停', style, 0, 0,
                                           win32con.CW_USEDEFAULT, win32con.CW_USEDEFAULT, 0, 0, hinst, None)
         win32gui.UpdateWindow(self.hwnd)
-        Dir=os.path.split(os.path.realpath(__file__))[0]
+        Dir=os.path.dirname(sys.argv[0])
         self._createIcon()
         self.legod=legod.legod(True,Dir);
         self.stopflag=False
@@ -143,6 +144,8 @@ class TrayIcon(object):
             self.taskbar_msg("退出并暂停时长结果",msg)
             sleep(2)
             win32gui.DestroyWindow(self.hwnd)
+            # 结束进程回收资源
+            os._exit(0)
         else:
             print ("Unknown command -", id)
     def taskbar_msg(self,title,msg):

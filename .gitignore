@@ -3,7 +3,7 @@ dist/*
 build/*
 _pycache_/*
 legod.spec
-__pycache__/legod.cpython-37.pyc
+__pycache__/
 .gitignore
 run.spec
 TrayIcon.spec
@@ -12,3 +12,4 @@ __pycache__/TrayIcon.cpython-37.pyc
 .ico.spec
 config-dev.ini
 .vscode/
+*.spec
