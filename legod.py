@@ -19,6 +19,7 @@ import time
 # import logging #log记录组件，目前没啥用
 import hashlib #md5 加密
 from sys import gettrace
+import sys
 
 class legod(object):
     def __init__(self,first,filedir='None'):
@@ -32,7 +33,8 @@ class legod(object):
 *                                                 *\n
 ***************************************************\n
 ''')
-        self.url='https://webapi.leigod.com/api/user/pause'
+        self.pause_url='https://webapi.leigod.com/api/user/pause'
+        self.info_url = 'https://webapi.leigod.com/api/user/info'
         self.header = {
                 # ':authority': 'webapi.nn.com',
                 # ':method':'POST',
@@ -106,7 +108,31 @@ class legod(object):
             if len(processCodeCov) > 0:
                 return '检测到{}'.format(i)
         return False
-
+    
+    def get_account_info(self) -> tuple:
+        '''
+        获取账号信息
+        '''
+        payload={ "account_token":self.conf.get("config","account_token"),
+                "lang":"zh_CN"}
+        r = requests.post(self.info_url,data=payload,headers = self.header)
+        msg=json.loads(r.text)
+        if(msg['code']==0):
+            return True,msg['data']
+        else:
+            return False,msg['msg']
+    
+    def check_stop_status(self) -> bool:
+        '''
+        通过账号信息判断是否暂停
+        0:正常,1:暂停
+        '''
+        status=self.get_account_info()[1]['pause_status_id']
+        if(status == 1):
+            return True
+        else:
+            return False
+        
     def pause(self):
         '''
         暂停加速,调用官网api
@@ -129,7 +155,13 @@ class legod(object):
                 print("没填用户名密码或者是token无效,请填写后重启工具")
                 tmp_msg="没填用户名密码或者是token无效,请填写后重启工具"
                 break
-            r = requests.post(self.url,data=payload,headers = self.header)
+            # 检查是否暂停，如果暂停则不再暂停
+            if(self.check_stop_status()):
+                tmp_msg="已经暂停"
+                print(tmp_msg)
+                break
+            # 请求暂停
+            r = requests.post(self.pause_url,data=payload,headers = self.header)
             if r.status_code==403:
                 try:
                     token = self.login(self.uname,self.password)
@@ -154,6 +186,7 @@ class legod(object):
                     tmp_msg=token
                     break
         return tmp_msg
+    
     def load(self):
         '''
         加载配置文件
