@@ -56,19 +56,28 @@ class legod(object):
         self.stopp=False
         self.conf=self.load()
 
-    def genearteMD5(self,str):
+    def genearteMD5(self,password):
         '''
         创建md5对象
         '''
         # debug模式下 无法登录 先注释掉了
         # if isDebug:#debug模式下，在config中填入md5加密后的密码。todo:接下来考虑如何加密存储密码，保证数据安全。目前想法:输入后自动替换md5
         #     return str
+        # 已经md5加密过的密码
+        if self.md5 == '1':
+            print("密码已加密,无需再次加密")
+            return password
         hl = hashlib.md5()
         # Tips
         # 此处必须声明encode
         # 否则报错为：hl.update(str)    Unicode-objects must be encoded before hashing
-        hl.update(str.encode(encoding='utf-8'))
-        return hl.hexdigest()
+        hl.update(password.encode(encoding='utf-8'))
+        password = hl.hexdigest()
+        self.conf.set('config','md5','1')
+        self.conf.set('config','password',password)
+        self.conf.write(open(self.configPath,'w',encoding='utf_8'))
+        print("原密码已加密,已写入新的密码")
+        return password
 
     def login(self,uname,password):
         '''
@@ -195,15 +204,15 @@ class legod(object):
             payload={
             "account_token":self.conf.get("config","account_token"),
             "lang":"zh_CN"}
-            r = requests.post(self.pause_url,data=payload,headers = self.header)
-            if r.status_code==403:
+            response = requests.post(self.pause_url,data=payload,headers = self.header)
+            if response.status_code==403:
                 try:
                     token = self.login(self.uname,self.password)
                 except:
                     print("未知错误，可能是请求频繁或者是网址更新")
                     tmp_msg="未知错误，可能是请求频繁或者是网址更新"
                 continue
-            msg=json.loads(r.text)
+            msg=json.loads(response.text)
             print("暂停结果：",msg['msg'])
             if(msg['code']!=400006):
                 tmp_msg=msg['msg']
@@ -249,6 +258,7 @@ class legod(object):
             appname = self.conf.get('config','games').replace("，",",") # 先对字符串中的中文逗号进行替换
             self.sec = int(self.conf.get('config','looptime'))          # 允许游戏关闭的时间（在此时间内切换游戏不会关闭加速器）单位：秒
             self.uname=self.conf.get("config","uname")                  # 用户名/手机号
+            self.md5 = self.conf.get("config","md5")                    # 密码是否已经md5加密
             self.password=self.conf.get("config","password")            # 密码
             self.update=int(self.conf.get("config","update"))           # 检测时间，多少秒检测一次程序
             self.lepath=self.conf.get("config","path").strip('"')       # 雷神路径,替换掉外部的\"
