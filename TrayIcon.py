@@ -24,8 +24,9 @@ import sys
 logLevel = logging.DEBUG if legod.isDebug else logging.ERROR
 
 logging.basicConfig(level=logLevel 
-                    ,filename="demo.log" #log日志输出的文件位置和文件名
-                    ,filemode="w" #文件的写入格式，w为重新写入文件，默认是追加
+                    #log日志输出的文件位置和文件名
+                    #文件的写入格式，w为重新写入文件，默认是追加
+                    ,handlers=[logging.FileHandler(filename="./demo.log", encoding='utf-8', mode='w')]
                     ,format="%(asctime)s - %(levelname)-8s - %(filename)-8s : %(lineno)s line - %(message)s" #日志输出的格式
                     # -8表示占位符，让输出左对齐，输出长度都为8位
                     ,datefmt="%Y-%m-%d %H:%M:%S" #时间输出的格式
