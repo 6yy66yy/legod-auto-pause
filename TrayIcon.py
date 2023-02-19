@@ -9,10 +9,9 @@
 ###############
 
 from asyncio.windows_events import NULL
-import win32con
-import win32gui
-import win32api
 from ctypes import WinError
+import win32con, win32gui, win32api, win32event
+import winerror, pywintypes
 import os
 import legod
 from time import sleep
@@ -35,6 +34,13 @@ logging.basicConfig(level=logLevel
 
 class TrayIcon(object):
     def __init__(self):
+        # 检查是否已经运行
+        self.mutex = None
+        self.mutex_name = "legodpause"
+        check_result = self.check_already_running()
+        if check_result:
+            logging.error("程序已经运行")
+            os._exit(1)
         msg_TaskbarRestart = win32gui.RegisterWindowMessage("Legod自动暂停")
         message_map = {
             msg_TaskbarRestart: self.OnRestart,
@@ -67,6 +73,25 @@ class TrayIcon(object):
         t1 = Thread(target=self.detection, args=())
         t1.start()
         self.taskbar_msg("自动暂停工具运行成功",'游戏列表:%s'%self.legod.applist)
+
+    def check_already_running(self) -> bool:
+        ''' 检查是否已经运行
+        Returns
+        --------
+        :class:`bool`
+           True 已经运行 False 未运行
+        '''
+        # 创建互斥量
+        # prevent the PyHANDLE from going out of scope, ints are fine
+        mutex = win32event.CreateMutex(None, False, self.mutex_name)
+        self.mutex = int(mutex)
+        mutex.Detach()
+        # 判断是否已经存在
+        if win32api.GetLastError() == winerror.ERROR_ALREADY_EXISTS:
+            win32api.CloseHandle(mutex)
+            self.mutex = None
+            return True
+        return False
 
     def _createIcon(self):
         hinst = win32api.GetModuleHandle(None)
@@ -145,6 +170,7 @@ class TrayIcon(object):
             sleep(2)
             win32gui.DestroyWindow(self.hwnd)
             # 结束进程回收资源
+            win32event.ReleaseMutex(self.mutex)
             os._exit(0)
         else:
             print ("Unknown command -", id)
