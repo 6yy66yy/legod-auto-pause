@@ -60,8 +60,9 @@ class legod(object):
         '''
         创建md5对象
         '''
-        if isDebug:#debug模式下，在config中填入md5加密后的密码。todo:接下来考虑如何加密存储密码，保证数据安全。目前想法:输入后自动替换md5
-            return str
+        # debug模式下 无法登录 先注释掉了
+        # if isDebug:#debug模式下，在config中填入md5加密后的密码。todo:接下来考虑如何加密存储密码，保证数据安全。目前想法:输入后自动替换md5
+        #     return str
         hl = hashlib.md5()
         # Tips
         # 此处必须声明encode
@@ -97,7 +98,30 @@ class legod(object):
         else:
             print(msg['msg'])
             return False,msg['msg']
-
+    
+    def get_token(self,payload) -> tuple:
+        '''获取并写入token到config.ini
+        Returns
+        --------
+        :class:`bool`
+           True 登录成功 False  登录失败
+        :class:`str`
+            登录成功返回成功msg，登录失败返回错误msg
+        '''
+        tmp_msg = ''
+        result = self.login(self.uname,self.password)
+        token = result[1]
+        if result[0]:
+            self.conf.set('config','account_token',token)
+            self.conf.write(open(self.configPath,'w',encoding='utf_8'))
+            print("原token失效,已写入新的token")
+            tmp_msg="原token失效,已写入新的token"
+            payload['account_token']=token
+            return True,tmp_msg
+        else:
+            tmp_msg=token
+            return False,tmp_msg
+  
     def check_exsit(self):
         '''
         查询进程中是否存在游戏列表中的进程
@@ -112,15 +136,25 @@ class legod(object):
     def get_account_info(self) -> tuple:
         '''
         获取账号信息
+        Returns
+        --------
+        :class:`tuple`
+            (True,账号信息) or (False,错误信息)
         '''
         payload={ "account_token":self.conf.get("config","account_token"),
                 "lang":"zh_CN"}
-        r = requests.post(self.info_url,data=payload,headers = self.header)
-        msg=json.loads(r.text)
-        if(msg['code']==0):
-            return True,msg['data']
-        else:
-            return False,msg['msg']
+        for i in range(2):
+            r = requests.post(self.info_url,data=payload,headers = self.header)
+            msg=json.loads(r.text)
+            # code:400006  msg: '账号未登录'说明token失效，需要重新登录获取token
+            if msg['code']==400006:
+                result = self.get_token(payload)
+            elif(msg['code']==0):
+                return True,msg['data']
+                break
+            else:
+                return False,msg['msg']
+                break
     
     def check_stop_status(self) -> bool:
         '''
@@ -140,9 +174,6 @@ class legod(object):
         Returns:
             官网返回的信息
         '''
-        payload={
-            "account_token":self.conf.get("config","account_token"),
-            "lang":"zh_CN"}
         # sessions=requests.session()
         # sessions.mount('https://webapi.nn.com', HTTP20Adapter())
         # r =sessions.post(url,data=payload,headers = header)
@@ -161,6 +192,9 @@ class legod(object):
                 print(tmp_msg)
                 break
             # 请求暂停
+            payload={
+            "account_token":self.conf.get("config","account_token"),
+            "lang":"zh_CN"}
             r = requests.post(self.pause_url,data=payload,headers = self.header)
             if r.status_code==403:
                 try:
@@ -175,15 +209,10 @@ class legod(object):
                 tmp_msg=msg['msg']
                 return tmp_msg
             else:
-                suces,token = self.login(self.uname,self.password)
-                if suces:
-                    self.conf.set('config','account_token',token)
-                    self.conf.write(open(self.configPath,'w',encoding='utf_8'))
-                    print("原token失效,已写入新的token")
-                    tmp_msg="原token失效,已写入新的token"
-                    payload['account_token']=token
-                else:
-                    tmp_msg=token
+                result = self.get_token(payload)
+                result,tmp_msg=result[0],result[1]
+                # 获取token失败直接退出
+                if not result:
                     break
         return tmp_msg
     
@@ -206,7 +235,8 @@ class legod(object):
             raise e
         # global appname,sec,uname,password,update,account_token,configPath,lepath,conf # 大概没用注释一下
         if isDebug:     # 在当前文件路径下查找.ini文件
-            print("debug模式开启,密码不加密传输")
+            # print("debug模式开启,密码不加密传输")
+            print("debug模式开启")
             print("当前加载配置为"+configfile)
         self.configPath = os.path.join(proDir, configfile)
         self.conf = configparser.ConfigParser()
