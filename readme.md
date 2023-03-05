@@ -19,10 +19,12 @@
 ```config
 [config]
 # 雷神路径
-path = 
+path = "C:\Program Files (x86)\LeiGod_Acc\leigod.exe"
 # 用户名/手机号
 uname = 
-# 密码
+# MD5加密，1为开启，0为关闭。如果开启，密码请填写MD5加密后的密码。#感谢aW3ikun完善此功能
+md5 = 0
+# 密码（登录后会替换为md5）
 password = 
 # 游戏名称（游戏程序在任务管理器中的名称）
 games = GTA5,Overwatch,notepad

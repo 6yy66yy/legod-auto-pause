@@ -133,7 +133,7 @@ class TrayIcon(object):
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1024, "暂停时长")
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1025, "设置")
             win32gui.AppendMenu(menu, win32con.MF_STRING, 1026, "退出并暂停时长")
-            win32gui.AppendMenu(menu, win32con.MF_DISABLED, 0, "自动暂停工具v2.2    ")
+            win32gui.AppendMenu(menu, win32con.MF_DISABLED, 0, "自动暂停工具%s"%self.legod.version)
             win32gui.AppendMenu(menu, win32con.MF_DISABLED, 0, "Author: 6yy66yy")
             pos = win32gui.GetCursorPos()
             win32gui.SetForegroundWindow(self.hwnd)

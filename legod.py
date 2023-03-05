@@ -4,7 +4,7 @@
 # @Author: 6yy66yy
 # @Date: 2021-07-26 16:44:05
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2023-03-05 18:45:24
+# @LastEditTime: 2023-03-05 19:35:49
 # @FilePath: \legod-auto-pause\legod.py
 # @Description: 雷神加速器时长自动暂停，暂停程序，可以独立运行。
 ###############
@@ -23,16 +23,7 @@ import sys
 
 class legod(object):
     def __init__(self,first,filedir='None'):
-        print('''
-***************************************************\n
-*                                                 *\n
-*                                                 *\n
-*              雷神加速器自动暂停工具v2.2         *\n
-*                     正在运行                    *\n
-*                   作者:6yy66yy                  *\n
-*                                                 *\n
-***************************************************\n
-''')
+        self.version = "v2.2.1"
         self.pause_url='https://webapi.leigod.com/api/user/pause'
         self.info_url = 'https://webapi.leigod.com/api/user/info'
         self.header = {
@@ -55,14 +46,20 @@ class legod(object):
         self.Dir=filedir
         self.stopp=False
         self.conf=self.load()
+        print('''
+***************************************************
+*                                                 *
+*                                                 *
+*              雷神加速器自动暂停工具             *
+*                     正在运行                    *
+*                   作者:6yy66yy                  *
+*                                                 *
+*************************************************** 当前版本：%s'''%self.version)
 
     def genearteMD5(self,password):
         '''
         创建md5对象
         '''
-        # debug模式下 无法登录 先注释掉了
-        # if isDebug:#debug模式下，在config中填入md5加密后的密码。todo:接下来考虑如何加密存储密码，保证数据安全。目前想法:输入后自动替换md5
-        #     return str
         # 已经md5加密过的密码
         if self.md5 == '1':
             print("密码已加密,无需再次加密")
@@ -192,8 +189,8 @@ class legod(object):
         while(i<3):
             i+=1
             if(self.uname=="" or self.password=="" and self.conf.get("config","account_token") == ""):
-                print("没填用户名密码或者是token无效,请填写后重启工具")
-                tmp_msg="没填用户名密码或者是token无效,请填写后重启工具"
+                print("没填用户名密码或者是token无效,请填写后再试")
+                tmp_msg="没填用户名密码或者是token无效,请填写再试"
                 break
             # 检查是否暂停，如果暂停则不再暂停
             if(self.check_stop_status()):
