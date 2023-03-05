@@ -3,7 +3,7 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2023-01-20 01:01:26
+# @LastEditTime: 2023-03-05 19:00:49
 # @FilePath: \legod-auto-pause\TrayIcon.py
 # @Description: 托盘控制程序，依赖legod.py运行
 ###############
@@ -18,6 +18,7 @@ from time import sleep
 from threading import Thread
 import pythoncom
 import logging
+from logging.handlers import RotatingFileHandler
 import sys
 
 #设置日志输出格式
@@ -25,8 +26,8 @@ logLevel = logging.DEBUG if legod.isDebug else logging.ERROR
 
 logging.basicConfig(level=logLevel 
                     #log日志输出的文件位置和文件名
-                    #文件的写入格式，w为重新写入文件，默认是追加
-                    ,handlers=[logging.FileHandler(filename="./demo.log", encoding='utf-8', mode='w')]
+                    #RotatingFileHandler循环写入日志，文件按maxBytes=1MB分割最多backupCount份
+                    ,handlers=[RotatingFileHandler(filename="./demo.log",maxBytes=1 * 1024 * 1024, backupCount=2, encoding='utf-8')]
                     ,format="%(asctime)s - %(levelname)-8s - %(filename)-8s : %(lineno)s line - %(message)s" #日志输出的格式
                     # -8表示占位符，让输出左对齐，输出长度都为8位
                     ,datefmt="%Y-%m-%d %H:%M:%S" #时间输出的格式
@@ -61,7 +62,7 @@ class TrayIcon(object):
             classAtom = win32gui.RegisterClass(wndclass)
         except win32gui.error as err_info:
             if err_info.winerror != WinError.ERROR_CLASS_ALREADY_EXISTS:
-                logging.error("窗口注册失败")
+                logging.error("窗口注册失败%s"%err_info)
                 raise
         style = win32con.WS_OVERLAPPED | win32con.WS_SYSMENU
         self.hwnd = win32gui.CreateWindow(wndclass.lpszClassName, 'Legod自动暂停', style, 0, 0,
@@ -73,7 +74,7 @@ class TrayIcon(object):
         self.stopflag=False
         t1 = Thread(target=self.detection, args=())
         t1.start()
-        self.taskbar_msg("自动暂停工具运行成功",'游戏列表:%s'%self.legod.applist)
+        self.taskbar_msg("自动暂停工具运行成功",'游戏列表:%s'%",".join(self.legod.applist))
 
     def check_already_running(self) -> bool:
         ''' 检查是否已经运行
@@ -161,7 +162,7 @@ class TrayIcon(object):
             self.taskbar_msg("打开设置","保存并关闭窗口以更新设置")
             os.system(legod.configfile)
             self.legod.load()
-            self.taskbar_msg("设置更新",'新的游戏列表为:%s'%self.legod.appname)
+            self.taskbar_msg("设置更新",'新的游戏列表为:%s'%",".join(self.legod.applist))
             logging.info("更新ini文件")
         elif id == 1026:
             print ("退出并暂停时长")
