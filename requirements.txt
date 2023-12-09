@@ -1,3 +1,4 @@
 pywin32==305
 configparser==5.3.0
 requests
+win11toast
