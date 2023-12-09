@@ -3,23 +3,22 @@
 # @Author: 6yy66yy
 # @Date: 2022-03-11 14:13:00
 # @LastEditors: 6yy66yy
-# @LastEditTime: 2023-03-05 19:00:49
+# @LastEditTime: 2023-12-10 00:53:55
 # @FilePath: \legod-auto-pause\TrayIcon.py
 # @Description: 托盘控制程序，依赖legod.py运行
 ###############
 
 from asyncio.windows_events import NULL
-from ctypes import WinError
-import win32con, win32gui, win32api, win32event
-import winerror, pywintypes
-import os
+import win32con, win32gui, win32api, win32event, winerror
 import legod
 from time import sleep
 from threading import Thread
 import pythoncom
 import logging
 from logging.handlers import RotatingFileHandler
+import os
 import sys
+from win11toast import toast
 
 #设置日志输出格式
 logLevel = logging.DEBUG if legod.isDebug else logging.ERROR
@@ -41,6 +40,7 @@ class TrayIcon(object):
         self.mutex_name = "legodpause"
         check_result = self.check_already_running()
         if check_result:
+            print('程序已经运行')
             logging.error("程序已经运行")
             os._exit(1)
         msg_TaskbarRestart = win32gui.RegisterWindowMessage("Legod自动暂停")
@@ -61,7 +61,7 @@ class TrayIcon(object):
         try:
             classAtom = win32gui.RegisterClass(wndclass)
         except win32gui.error as err_info:
-            if err_info.winerror != WinError.ERROR_CLASS_ALREADY_EXISTS:
+            if err_info.winerror != winerror.ERROR_CLASS_ALREADY_EXISTS:
                 logging.error("窗口注册失败%s"%err_info)
                 raise
         style = win32con.WS_OVERLAPPED | win32con.WS_SYSMENU
@@ -203,6 +203,20 @@ class TrayIcon(object):
                 for i in range(1,self.legod.sec):
                     game=self.legod.check_exsit()
                     sleep(1)
+                # TODO: 目前没找到更好的可以添加可点击消息框的方式，pywin32这个组件没找到方法。或许后续可以直接用新方式重构
+                # 虽然是组件叫win11toast，貌似也支持win10
+                res = toast('检测到游戏关闭 是否关闭加速？', '窗口消失后自动暂停', app_id = sys.argv[0], buttons=['暂停', '延迟 {} 秒'.format(self.legod.sec)])
+                if 'arguments' in res:
+                    select = res['arguments']
+                    if "暂停" in select:
+                        print('res', "暂停")
+                    elif "延迟" in select:
+                        sleep(self.legod.sec)
+                        # 这样处理每次延迟结束后，如果游戏仍然没开，都会提醒一下要不要关闭
+                        continue
+                else: 
+                    print(res[0].name)
+                    logging.error("选择异常：%s"%res[0].name)
                 if game is False:
                     try:
                         msg=self.legod.pause()
