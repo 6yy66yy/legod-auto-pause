@@ -137,6 +137,9 @@ class legod(object):
         if msg["code"] == 0:
             token = msg["data"]["login_info"]["account_token"]
             print("登陆成功，token:" + token)
+            self.conf.set("config", "account_token", token)
+            self.conf.write(open(self.configPath, "w", encoding="utf_8"))
+            print("已写入新的token")
             return True, token
         else:
             print(msg["msg"])
