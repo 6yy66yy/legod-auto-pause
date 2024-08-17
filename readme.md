@@ -55,3 +55,8 @@ account_token =
     可以转载使用以及帮忙优化，发布时记得署名就好啦(●ˇ∀ˇ●)
 
 ## · 觉得好用给可以点个星星
+## Star History
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=6yy66yy/legod-auto-pause&type=Date)](https://star-history.com/#6yy66yy/legod-auto-pause&Date)
