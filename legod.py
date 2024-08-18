@@ -22,6 +22,14 @@ from sys import gettrace
 import sys
 from urllib.parse import urlencode
 
+# 雷神返回值定义
+# HTTP_SUCCESS_NET_CODE: 0,
+# HTTP_TOKEN_EXPIRE: 400006,
+# HTTP_LOGIN_ERROR_CODE: 400003,
+# HTTP_ERROR_NEW_CODE: -5e4,
+# HTTP_ERROR_NOT_PAY: 400877,
+# HTTP_ERROR_WX_NOBIND: 400617,
+# HTTP_ERROR_JYCODE: 400857
 
 class legod(object):
     def __init__(self, first, filedir="None"):
@@ -57,12 +65,13 @@ class legod(object):
 *              雷神加速器自动暂停工具             *
 *                     正在运行                    *
 *                   作者:6yy66yy                  *
+*   https://github.com/6yy66yy/legod-auto-pause   *
 *                                                 *
 *************************************************** 当前版本：%s"""
             % self.version
         )
-
-    def genearteMD5(self, password):
+    # 对密码生成md5进行判断
+    def encrypt_password_in_config(self, password):
         """
         创建md5对象
         """
@@ -70,15 +79,14 @@ class legod(object):
         if self.md5 == "1":
             print("密码已加密,无需再次加密")
             return password
-
-        password = self.doGenMD5(password)
+        password = self.generate_md5(password)
         self.conf.set("config", "md5", "1")
         self.conf.set("config", "password", password)
         self.conf.write(open(self.configPath, "w", encoding="utf_8"))
-        print("原密码已加密,已写入新的密码")
+        print("原密码已被加密,已写入MD5编码")
         return password
 
-    def doGenMD5(self, str):
+    def generate_md5(self, str):
         hl = hashlib.md5()
         # Tips
         # 此处必须声明encode
@@ -112,7 +120,7 @@ class legod(object):
             "lang": "zh_CN",
             "mobile_num": uname,
             "os_type": 4,
-            "password": self.genearteMD5(password),
+            "password": self.encrypt_password_in_config(password),
             "region_code": 1,
             "src_channel": "guanwang",
             "username": uname,
@@ -128,6 +136,10 @@ class legod(object):
         msg = json.loads(r.text)
         if msg["code"] == 0:
             token = msg["data"]["login_info"]["account_token"]
+            print("登陆成功，token:" + token)
+            self.conf.set("config", "account_token", token)
+            self.conf.write(open(self.configPath, "w", encoding="utf_8"))
+            print("已写入新的token")
             return True, token
         else:
             print(msg["msg"])
@@ -138,9 +150,9 @@ class legod(object):
         官方的“签名方法” 实际是对请求体转字符串后做了一个md5（流汗
         """
         bodyToSign["ts"] = int(time.time())
-        strToSign = urlencode(sorted(bodyToSign.items())) + '&key=' + self.key
-        print("sign:" + strToSign)
-        bodyToSign["sign"] = self.doGenMD5(strToSign)
+        str_to_sign = urlencode(sorted(bodyToSign.items())) + '&key=' + self.key
+        print("sign:" + str_to_sign)
+        bodyToSign["sign"] = self.generate_md5(str_to_sign)
 
     def get_token(self, payload) -> tuple:
         """获取并写入token到config.ini
