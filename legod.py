@@ -11,6 +11,7 @@ import requests
 import json
 import os
 import configparser
+import loginView
 
 # from hyper.contrib import HTTP20Adapter
 import win32com.client
@@ -86,7 +87,7 @@ class legod(object):
         hl.update(str.encode(encoding="utf-8"))
         return hl.hexdigest()
 
-    def login(self, uname, password):
+    def login(self, uname, password,getNewToken=False):
         """
         登录函数，当token无效的时候调用登录函数获取新的token
 
@@ -94,44 +95,56 @@ class legod(object):
             成功:True+新的token
             失败:False+错误信息
         """
-        if uname == "" or password == "":
-            return False
-        token = ""
-        # body={
-        #     'username':uname,
-        #     'password':self.genearteMD5(password),
-        #     'user_type':'0',
-        #     'src_channel':'guanwang',
-        #     'country_code':86,
-        #     'lang':'zh_CN',
-        #     'region_code':1,
-        #     'account_token':'null'}
-        body = {
-            "account_token": "null",
-            "country_code": 86,
-            "lang": "zh_CN",
-            "mobile_num": uname,
-            "os_type": 4,
-            "password": self.genearteMD5(password),
-            "region_code": 1,
-            "src_channel": "guanwang",
-            "username": uname,
-        }
-        # 对请求体做签名
-        self.legod_sign(body)
-
-        r = requests.post(
-            "https://webapi.leigod.com/api/auth/login/v1",
-            data=body,
-            headers=self.header,
-        )
-        msg = json.loads(r.text)
-        if msg["code"] == 0:
-            token = msg["data"]["login_info"]["account_token"]
+        token = self.conf.get("config", "account_token")
+        print("配置文件中的token为：%s"%token)
+        if not getNewToken and token != "null" and token != "":
             return True, token
-        else:
-            print(msg["msg"])
-            return False, msg["msg"]
+        token = loginView.get_account_token()
+        if token == "null" or token == "":
+            print("获取token失败，请在弹窗中登录后等待其自动关闭")
+            return False, "获取token失败，请在弹窗中登录后等待其自动关闭"
+
+        self.conf.set("config", "account_token", token)
+        self.conf.write(open(self.configPath, "w", encoding="utf_8"))
+        return True, token
+        # if uname == "" or password == "":
+        #     return False
+        # token = ""
+        # # body={
+        # #     'username':uname,
+        # #     'password':self.genearteMD5(password),
+        # #     'user_type':'0',
+        # #     'src_channel':'guanwang',
+        # #     'country_code':86,
+        # #     'lang':'zh_CN',
+        # #     'region_code':1,
+        # #     'account_token':'null'}
+        # body = {
+        #     "account_token": "null",
+        #     "country_code": 86,
+        #     "lang": "zh_CN",
+        #     "mobile_num": uname,
+        #     "os_type": 4,
+        #     "password": self.genearteMD5(password),
+        #     "region_code": 1,
+        #     "src_channel": "guanwang",
+        #     "username": uname,
+        # }
+        # # 对请求体做签名
+        # self.legod_sign(body)
+
+        # r = requests.post(
+        #     "https://webapi.leigod.com/api/auth/login/v1",
+        #     data=body,
+        #     headers=self.header,
+        # )
+        # msg = json.loads(r.text)
+        # if msg["code"] == 0:
+        #     token = msg["data"]["login_info"]["account_token"]
+        #     return True, token
+        # else:
+        #     print(msg["msg"])
+        #     return False, msg["msg"]
 
     def legod_sign(self, bodyToSign):
         """
@@ -152,11 +165,9 @@ class legod(object):
             登录成功返回成功msg，登录失败返回错误msg
         """
         tmp_msg = ""
-        result = self.login(self.uname, self.password)
+        result = self.login(self.uname, self.password,True)
         token = result[1]
         if result[0]:
-            self.conf.set("config", "account_token", token)
-            self.conf.write(open(self.configPath, "w", encoding="utf_8"))
             print("原token失效,已写入新的token")
             tmp_msg = "原token失效,已写入新的token"
             payload["account_token"] = token
@@ -230,25 +241,26 @@ class legod(object):
         tmp_msg = ""
         while i < 3:
             i += 1
+            payload = {
+                "account_token": self.conf.get("config", "account_token"),
+                "lang": "zh_CN",
+                "os_type": 4,
+            }
             if (
                 self.uname == ""
                 or self.password == ""
                 and self.conf.get("config", "account_token") == ""
             ):
                 print("没填用户名密码或者是token无效,请填写后再试")
-                tmp_msg = "没填用户名密码或者是token无效,请填写再试"
-                break
+                self.get_token(payload)
+                # tmp_msg = "没填用户名密码或者是token无效,请填写再试"
+                # break
             # 检查是否暂停，如果暂停则不再暂停
             if self.check_stop_status():
                 tmp_msg = "已经暂停"
                 print(tmp_msg)
                 break
             # 请求暂停
-            payload = {
-                "account_token": self.conf.get("config", "account_token"),
-                "lang": "zh_CN",
-                "os_type": 4,
-            }
             response = requests.post(self.pause_url, data=payload, headers=self.header)
             if response.status_code == 403:
                 try:

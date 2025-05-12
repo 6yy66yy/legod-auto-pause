@@ -72,6 +72,7 @@ class TrayIcon(object):
         self._createIcon()
         self.legod=legod.legod(True,Dir);
         self.stopflag=False
+        self.legod.login(self.legod.uname,self.legod.password,False)
         t1 = Thread(target=self.detection, args=())
         t1.start()
         self.taskbar_msg("自动暂停工具运行成功",'游戏列表:%s'%",".join(self.legod.applist))
