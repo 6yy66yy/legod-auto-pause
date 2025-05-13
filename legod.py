@@ -97,9 +97,11 @@ class legod(object):
         """
         token = self.conf.get("config", "account_token")
         print("配置文件中的token为：%s"%token)
+        print("检测参数getNewToken的值为：%s,token的值为%s"%(getNewToken,token))
         if not getNewToken and token != "null" and token != "":
             return True, token
         token = loginView.get_account_token()
+        print("获取到的token为：%s"%token)
         if token == "null" or token == "":
             print("获取token失败，请在弹窗中登录后等待其自动关闭")
             return False, "获取token失败，请在弹窗中登录后等待其自动关闭"
@@ -237,23 +239,23 @@ class legod(object):
         # sessions.mount('https://webapi.nn.com', HTTP20Adapter())
         # r =sessions.post(url,data=payload,headers = header)
         i = 0
-        token = ""
+        token = self.conf.get("config", "account_token")
+        print("暂停加速从配置文件中获取的token为：%s"%token)
         tmp_msg = ""
         while i < 3:
             i += 1
             payload = {
-                "account_token": self.conf.get("config", "account_token"),
+                "account_token": token,
                 "lang": "zh_CN",
                 "os_type": 4,
             }
+            # todo: 如果有用户名密码，看看能不能自动填入
             if (
-                self.uname == ""
-                or self.password == ""
-                and self.conf.get("config", "account_token") == ""
+                token == "" and (self.uname == "" or self.password == "")
             ):
-                print("没填用户名密码或者是token无效,请填写后再试")
-                self.get_token(payload)
-                # tmp_msg = "没填用户名密码或者是token无效,请填写再试"
+                print("没填用户名密码或者是token无效,获取新的token")
+                token = self.get_token(payload)
+                tmp_msg = "没填用户名密码或者是token无效,获取新的token"
                 # break
             # 检查是否暂停，如果暂停则不再暂停
             if self.check_stop_status():
