@@ -100,7 +100,7 @@ class legod(object):
         print("检测参数getNewToken的值为：%s,token的值为%s"%(getNewToken,token))
         if not getNewToken and token != "null" and token != "":
             return True, token
-        token = loginView.get_account_token()
+        token = loginView.get_account_token(userName=uname)
         print("获取到的token为：%s"%token)
         if token == "null" or token == "":
             print("获取token失败，请在弹窗中登录后等待其自动关闭")
